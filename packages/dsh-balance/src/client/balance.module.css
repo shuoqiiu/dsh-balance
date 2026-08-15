@@ -1,0 +1,597 @@
+/**
+ * dsh-balance HUD stylesheet — a cyber/HUD-styled floating panel: dark glass,
+ * neon cyan accents, HUD corner brackets, animated scanlines and a sweeping
+ * glint, monospace digits, and a warning look for low balance. All colors are
+ * hardcoded so the widget reads the same on every skin; the accent palette
+ * rides CSS custom properties switched by the status class.
+ */
+
+.float {
+  position: fixed;
+  display: block;
+  font-family: system-ui, -apple-system, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* ---------------- panel chrome ---------------- */
+
+.hud {
+  --accent: #22d3ee;
+  --accent-soft: #67e8f9;
+  --accent2: #a78bfa;
+  --danger: #f43f5e;
+  --warn: #f59e0b;
+  --text: #e0f2fe;
+  --text-dim: rgba(148, 197, 233, 0.62);
+  position: relative;
+  width: 262px;
+  box-sizing: border-box;
+  padding: 12px 14px 10px;
+  border-radius: 12px;
+  border: 1px solid rgba(56, 189, 248, 0.35);
+  background:
+    radial-gradient(120% 90% at 12% 0%, rgba(34, 211, 238, 0.10), transparent 46%),
+    radial-gradient(130% 100% at 100% 100%, rgba(167, 139, 250, 0.10), transparent 52%),
+    linear-gradient(160deg, rgba(11, 19, 36, 0.94), rgba(5, 10, 22, 0.90));
+  color: var(--text);
+  box-shadow:
+    0 0 0 1px rgba(2, 6, 18, 0.9),
+    0 8px 32px rgba(2, 10, 28, 0.55),
+    0 0 26px rgba(34, 211, 238, 0.16),
+    inset 0 0 34px rgba(34, 211, 238, 0.05);
+  backdrop-filter: blur(14px) saturate(1.2);
+  -webkit-backdrop-filter: blur(14px) saturate(1.2);
+  cursor: grab;
+  overflow: hidden;
+  transition: box-shadow 180ms ease, border-color 180ms ease;
+}
+
+.hud:active {
+  cursor: grabbing;
+}
+
+/* Status accents: low switches the palette to amber, error to red,
+   unconfigured/loading to a muted slate. */
+.hudLow {
+  --accent: #f59e0b;
+  --accent-soft: #fbbf24;
+  --accent2: #fb923c;
+}
+
+.hudErr {
+  --accent: #f43f5e;
+  --accent-soft: #fb7185;
+  --accent2: #f43f5e;
+}
+
+.hudWait {
+  --accent: #64748b;
+  --accent-soft: #94a3b8;
+  --accent2: #64748b;
+}
+
+/* HUD corner brackets. */
+.corner {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  border: 0 solid var(--accent);
+  opacity: 0.9;
+  pointer-events: none;
+}
+
+.cornerTl {
+  top: 5px;
+  left: 5px;
+  border-top-width: 2px;
+  border-left-width: 2px;
+  border-top-left-radius: 3px;
+}
+
+.cornerTr {
+  top: 5px;
+  right: 5px;
+  border-top-width: 2px;
+  border-right-width: 2px;
+  border-top-right-radius: 3px;
+}
+
+.cornerBl {
+  bottom: 5px;
+  left: 5px;
+  border-bottom-width: 2px;
+  border-left-width: 2px;
+  border-bottom-left-radius: 3px;
+}
+
+.cornerBr {
+  bottom: 5px;
+  right: 5px;
+  border-bottom-width: 2px;
+  border-right-width: 2px;
+  border-bottom-right-radius: 3px;
+}
+
+/* Faint scanline raster drifting upward. */
+.scanlines {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent 0,
+    transparent 3px,
+    rgba(148, 233, 255, 0.035) 3px,
+    rgba(148, 233, 255, 0.035) 4px
+  );
+  animation: balanceScan 9s linear infinite;
+}
+
+/* A vertical light sweep crossing the panel. */
+.glint {
+  position: absolute;
+  top: -40%;
+  bottom: -40%;
+  width: 42px;
+  pointer-events: none;
+  background: linear-gradient(90deg, transparent, rgba(160, 240, 255, 0.07), transparent);
+  transform: skewX(-16deg);
+  animation: balanceGlint 7.5s ease-in-out infinite;
+}
+
+@keyframes balanceScan {
+  from { background-position: 0 0; }
+  to { background-position: 0 48px; }
+}
+
+@keyframes balanceGlint {
+  0% { left: -18%; }
+  62% { left: 108%; }
+  100% { left: 108%; }
+}
+
+/* ---------------- head ---------------- */
+
+.head {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin-bottom: 7px;
+}
+
+.headTitle {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  flex: 1;
+  min-width: 0;
+}
+
+.titleZh {
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.4px;
+  color: var(--text);
+}
+
+.titleEn {
+  font-size: 9px;
+  font-weight: 500;
+  letter-spacing: 2.2px;
+  color: var(--accent-soft);
+  opacity: 0.85;
+  text-transform: uppercase;
+}
+
+.liveDot {
+  position: relative;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 8px var(--accent), 0 0 2px rgba(255, 255, 255, 0.6);
+  flex: none;
+}
+
+.liveDot::after {
+  content: '';
+  position: absolute;
+  inset: -5px;
+  border-radius: 50%;
+  border: 1px solid var(--accent);
+  opacity: 0.85;
+  animation: balancePulse 2s ease-out infinite;
+}
+
+@keyframes balancePulse {
+  0% { transform: scale(0.55); opacity: 0.85; }
+  75% { transform: scale(1.35); opacity: 0; }
+  100% { transform: scale(1.35); opacity: 0; }
+}
+
+.statusTag {
+  font-size: 9px;
+  letter-spacing: 1.4px;
+  padding: 1px 6px;
+  border-radius: 3px;
+  border: 1px solid currentColor;
+  color: var(--accent-soft);
+  opacity: 0.9;
+}
+
+/* ---------------- amount ---------------- */
+
+.amountRow {
+  position: relative;
+  display: flex;
+  align-items: baseline;
+  gap: 7px;
+  margin-bottom: 8px;
+}
+
+.currency {
+  font-family: 'JetBrains Mono', 'Cascadia Code', Consolas, 'SF Mono', Menlo, monospace;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--accent-soft);
+  text-shadow: 0 0 10px var(--accent);
+}
+
+.amount {
+  font-family: 'JetBrains Mono', 'Cascadia Code', Consolas, 'SF Mono', Menlo, monospace;
+  font-size: 27px;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: 0.6px;
+  color: #f0f9ff;
+  text-shadow:
+    0 0 12px var(--accent),
+    0 0 26px rgba(34, 211, 238, 0.35);
+  transition: text-shadow 180ms ease;
+}
+
+.amountLow {
+  color: #fff7ed;
+  text-shadow:
+    0 0 12px var(--warn),
+    0 0 26px rgba(245, 158, 11, 0.4);
+}
+
+.lowBadge {
+  align-self: center;
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 1.6px;
+  color: #1c1404;
+  background: linear-gradient(90deg, #fbbf24, #f59e0b);
+  border-radius: 3px;
+  padding: 2px 6px;
+  animation: balanceWarn 1.6s ease-in-out infinite;
+}
+
+@keyframes balanceWarn {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.55; }
+}
+
+/* ---------------- split rows ---------------- */
+
+.split {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 8px;
+}
+
+.row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.rowLabel {
+  font-size: 11px;
+  color: var(--text-dim);
+  letter-spacing: 0.5px;
+}
+
+.rowLabel::before {
+  content: '';
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  margin-right: 6px;
+  border-radius: 1px;
+  background: var(--accent);
+  box-shadow: 0 0 6px var(--accent);
+  vertical-align: 0;
+}
+
+.rowTopped .rowLabel::before {
+  background: var(--accent2);
+  box-shadow: 0 0 6px var(--accent2);
+}
+
+.rowValue {
+  font-family: 'JetBrains Mono', 'Cascadia Code', Consolas, 'SF Mono', Menlo, monospace;
+  font-size: 12px;
+  color: var(--text);
+}
+
+/* Composition bar: granted (accent) vs topped-up (accent2) share of total. */
+.bar {
+  position: relative;
+  height: 3px;
+  border-radius: 2px;
+  background: rgba(148, 197, 233, 0.14);
+  overflow: hidden;
+  margin-bottom: 9px;
+}
+
+.barFill {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  background: linear-gradient(90deg, var(--accent), var(--accent2));
+  box-shadow: 0 0 8px var(--accent);
+  border-radius: 2px;
+  transition: width 420ms ease;
+}
+
+/* ---------------- sparkline ---------------- */
+
+.spark {
+  position: relative;
+  width: 100%;
+  height: 26px;
+  margin-bottom: 7px;
+}
+
+.sparkSvg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.sparkLine {
+  fill: none;
+  stroke: var(--accent-soft);
+  stroke-width: 1.4;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+  filter: drop-shadow(0 0 3px var(--accent));
+}
+
+.sparkFill {
+  fill: url(#balanceSparkGrad);
+  opacity: 0.35;
+}
+
+.sparkLast {
+  fill: var(--accent-soft);
+  filter: drop-shadow(0 0 3px var(--accent));
+}
+
+/* ---------------- foot ---------------- */
+
+.foot {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.footTime {
+  flex: 1;
+  min-width: 0;
+  font-size: 10px;
+  letter-spacing: 0.4px;
+  color: var(--text-dim);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.footTimeStale {
+  color: var(--warn);
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  border-radius: 5px;
+  border: 1px solid rgba(148, 197, 233, 0.22);
+  background: rgba(148, 197, 233, 0.07);
+  color: var(--accent-soft);
+  cursor: pointer;
+  font-size: 12px;
+  line-height: 1;
+  transition: background 120ms ease, border-color 120ms ease, color 120ms ease, box-shadow 120ms ease;
+}
+
+.btn:hover {
+  background: rgba(34, 211, 238, 0.16);
+  border-color: var(--accent);
+  color: #ecfeff;
+  box-shadow: 0 0 10px rgba(34, 211, 238, 0.3);
+}
+
+.btn:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--accent);
+}
+
+.btn svg {
+  width: 12px;
+  height: 12px;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.btnSpin svg {
+  animation: balanceSpin 0.9s linear infinite;
+}
+
+@keyframes balanceSpin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* ---------------- state message ---------------- */
+
+.stateMsg {
+  position: relative;
+  margin: 0 0 8px;
+  font-size: 10.5px;
+  line-height: 1.45;
+  color: var(--text-dim);
+  white-space: normal;
+}
+
+.stateMsgError {
+  color: var(--accent-soft);
+  text-shadow: 0 0 8px rgba(244, 63, 94, 0.35);
+}
+
+/* ---------------- collapsed pill ---------------- */
+
+.pill {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 12px 7px 13px;
+  border-radius: 999px;
+  border: 1px solid rgba(56, 189, 248, 0.35);
+  background: linear-gradient(160deg, rgba(11, 19, 36, 0.94), rgba(5, 10, 22, 0.90));
+  color: var(--text);
+  box-shadow:
+    0 4px 22px rgba(2, 10, 28, 0.5),
+    0 0 18px rgba(34, 211, 238, 0.14);
+  backdrop-filter: blur(14px) saturate(1.2);
+  -webkit-backdrop-filter: blur(14px) saturate(1.2);
+  cursor: grab;
+  overflow: hidden;
+  transition: box-shadow 160ms ease, border-color 160ms ease;
+}
+
+.pill:active {
+  cursor: grabbing;
+}
+
+.pillLow {
+  border-color: rgba(245, 158, 11, 0.5);
+  box-shadow:
+    0 4px 22px rgba(2, 10, 28, 0.5),
+    0 0 18px rgba(245, 158, 11, 0.2);
+}
+
+.pillDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #22d3ee;
+  box-shadow: 0 0 7px #22d3ee;
+  flex: none;
+  animation: balancePulse 2s ease-out infinite;
+}
+
+.pillLow .pillDot {
+  background: #f59e0b;
+  box-shadow: 0 0 7px #f59e0b;
+}
+
+.pillErr .pillDot {
+  background: #f43f5e;
+  box-shadow: 0 0 7px #f43f5e;
+}
+
+.pillWait .pillDot {
+  background: #64748b;
+  box-shadow: 0 0 7px #64748b;
+}
+
+.pillAmount {
+  font-family: 'JetBrains Mono', 'Cascadia Code', Consolas, 'SF Mono', Menlo, monospace;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.4px;
+  color: #f0f9ff;
+  text-shadow: 0 0 9px rgba(34, 211, 238, 0.7);
+}
+
+.pillLow .pillAmount {
+  text-shadow: 0 0 9px rgba(245, 158, 11, 0.7);
+}
+
+.pillHint {
+  font-size: 9px;
+  letter-spacing: 1.6px;
+  color: rgba(148, 197, 233, 0.55);
+  text-transform: uppercase;
+}
+
+/* ---------------- summon dot ---------------- */
+
+.summon {
+  position: relative;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  border: 1px solid rgba(56, 189, 248, 0.45);
+  background: linear-gradient(160deg, rgba(11, 19, 36, 0.94), rgba(5, 10, 22, 0.9));
+  color: #67e8f9;
+  font-size: 12px;
+  font-weight: 700;
+  font-family: 'JetBrains Mono', Consolas, monospace;
+  cursor: pointer;
+  box-shadow: 0 0 14px rgba(34, 211, 238, 0.22);
+  transition: box-shadow 140ms ease, color 140ms ease, transform 140ms ease;
+}
+
+.summon:hover {
+  color: #ecfeff;
+  box-shadow: 0 0 22px rgba(34, 211, 238, 0.45);
+  transform: scale(1.06);
+}
+
+.summonRing {
+  position: absolute;
+  inset: -5px;
+  border-radius: 50%;
+  border: 1px solid rgba(34, 211, 238, 0.5);
+  pointer-events: none;
+  animation: balancePulse 2.4s ease-out infinite;
+}
+
+/* ---------------- reduced motion ---------------- */
+
+@media (prefers-reduced-motion: reduce) {
+  .scanlines,
+  .glint,
+  .liveDot::after,
+  .lowBadge,
+  .summonRing,
+  .pillDot {
+    animation: none;
+  }
+
+  .barFill {
+    transition: none;
+  }
+}

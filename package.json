@@ -1,0 +1,16 @@
+{
+  "name": "dsh-balance-workspace",
+  "version": "0.1.12",
+  "private": true,
+  "description": "Standalone open-source workspace for the dsh-balance plugin (realtime model-account balance HUD for the DSH Web GUI).",
+  "scripts": {
+    "build": "pnpm -r build",
+    "test": "pnpm -r test",
+    "typecheck": "pnpm -r typecheck"
+  },
+  "devDependencies": {
+    "lightningcss": "^1.32.0",
+    "tsdown": "^0.22.2"
+  },
+  "license": "Apache-2.0"
+}

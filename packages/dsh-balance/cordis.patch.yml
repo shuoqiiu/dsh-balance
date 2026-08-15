@@ -1,0 +1,7 @@
+# dsh-balance bundle patch: inserts its plugin row into the web plugin roster.
+# One row mounts BOTH halves: the host side (balance poller, /api/balance/*
+# routes, `balance` settings namespace) and the browser side (the floating
+# HUD widget served from lib/client.js).
+- insert:
+    - id: balance
+      name: '@linxin666/dsh-balance'

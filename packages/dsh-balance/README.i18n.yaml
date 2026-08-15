@@ -1,0 +1,3 @@
+- name: dsh-balance
+  description: Realtime model-account balance HUD for the DSH Web GUI — a tech-styled floating widget with collapse/pill states and persisted position.
+  whenToUse: The user asks to build, debug, or extend the dsh-balance plugin (余额悬浮窗 / balance HUD), its host poller, its /api/balance routes, or its client widget.
