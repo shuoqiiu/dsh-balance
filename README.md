@@ -78,4 +78,5 @@ polling and the low-balance threshold from its settings card or the `balance` se
 
 ## License
 
-[Apache-2.0](LICENSE)
+[BSD-3-Clause](LICENSE) — (c) 2026 zhu1090093659 (dsh-web-ui plugin family) and shuoqiiu
+(dsh-balance plugin).
